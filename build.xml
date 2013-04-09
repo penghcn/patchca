@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<project default="jar" basedir=".">
+	<property name="src.dir" value="${basedir}/src" />
+	<property name="test.dir" value="${basedir}/test" />
+	<property name="build.dir" value="${basedir}/build" />
+	<property name="build.classes.dir" value="${build.dir}/classes" />
+	<property name="version.num" value="0.5.0"/>
+	<property name="file.version" value="patchca-${version.num}"/>
+	<property name="jar.file" value="${file.version}.jar"/>
+	<property name="demo.jar.file" value="${file.version}-demo.jar"/>
+	<property name="mf.mainclass" value="org.patchca.demo.PatchcaFilterDemo"/>
+	<property name="mf.classpath" value="lib/${jar.file}"/>
+
+	<target name="compile">
+		<delete dir="${build.classes.dir}"/>
+		<mkdir dir="${build.classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="on" deprecation="on" optimize="off" />
+	</target>
+
+	<target name="jar" depends="compile">
+		<delete file="${build.dir}/${jar.file}"/>
+		<delete file="${build.dir}/MANIFEST.MF"/>
+		<manifest file="${build.dir}/MANIFEST.MF">
+			<attribute name="Implementation-Version" value="${version.num}"/> 
+		</manifest>
+		<jar basedir="${build.dir}/classes" destfile="${build.dir}/${jar.file}" includes="**/*.class" manifest="${build.dir}/MANIFEST.MF">
+		</jar>
+	</target>
+	
+	<target name="compile-demo" depends="compile">
+		<javac srcdir="${test.dir}" destdir="${build.classes.dir}" debug="on" deprecation="on" optimize="off" />
+	</target>
+
+	<target name="jar-demo" depends="compile-demo">
+		<delete file="${build.dir}/${demo.jar.file}"/>
+		<delete file="${build.dir}/MANIFEST.MF"/>
+		<manifest file="${build.dir}/MANIFEST.MF">
+			<attribute name="Class-Path" value="${mf.classpath}"/>
+			<attribute name="Main-Class" value="${mf.mainclass}"/>
+		</manifest>
+		<jar basedir="${build.dir}/classes" destfile="${build.dir}/${demo.jar.file}" includes="**/demo/**/*.class" manifest="${build.dir}/MANIFEST.MF">
+		</jar>
+	</target>
+
+	<target name="zip" depends="jar,jar-demo">
+		<delete file="${build.dir}/${file.version}.zip"/>
+		<zip destfile="${build.dir}/${file.version}.zip">
+			<zipfileset file="licence*.txt"/>
+			<zipfileset file="${build.dir}/${demo.jar.file}"/>
+			<zipfileset prefix="lib" file="${build.dir}/${jar.file}"/>
+		</zip>
+	</target>
+
+</project>
